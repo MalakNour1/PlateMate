@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SearchScreen(
-    onRecipeClick:()-> Unit,
+    onRecipeClick:(Int)-> Unit,
     onBackClick:()-> Unit)
 {
     Column(
@@ -23,7 +23,7 @@ fun SearchScreen(
     ){
         Text("Search Recipes")
         Text("Search for a recipe")
-        Button(onClick = onRecipeClick) {
+        Button(onClick = {onRecipeClick(1)}) {
             Text("View recipe")
         }
         Button(onClick = onBackClick) {
