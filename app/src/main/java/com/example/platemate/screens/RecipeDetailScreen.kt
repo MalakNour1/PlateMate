@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun RecipeDetailScreen(
+    recipeId:Int,
     onBackCLick:() -> Unit
 ){
     Column(
@@ -22,10 +23,10 @@ fun RecipeDetailScreen(
         verticalArrangement= Arrangement.spacedBy(16.dp)
     ) {
         Text("Recipe details")
-        Text("Chicken pasta")
+        Text("Recipe Id:$recipeId")
         Text("ingredients")
-        Text("Chicken,pasta,cheese")
-        Text("cook the pasta while preparing the sauce")
+        Text("Instructions")
+
 
         Button(onClick = onBackCLick)
         {
