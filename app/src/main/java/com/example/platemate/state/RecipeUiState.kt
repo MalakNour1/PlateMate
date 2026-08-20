@@ -1,6 +1,6 @@
 package com.example.platemate.state
 
-import com.example.platemate.model.Recipe
+import com.example.platemate.domain.model.Recipe
 
 sealed interface RecipeUiState {
     data object Loading : RecipeUiState

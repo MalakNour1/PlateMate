@@ -60,7 +60,7 @@ fun HomeScreen(
                 state.recipes.forEach { recipe ->
                     RecipeCard(
                         title = recipe.title,
-                        summary = recipe.summary,
+                        category = recipe.category,
                         onClick = {
                             onRecipeClick(recipe.id)
                         }
