@@ -2,12 +2,15 @@ package com.example.platemate.viewmodel
 
 import android.R
 import androidx.lifecycle.ViewModel
-import com.example.platemate.domain.model.Recipe
+import com.example.platemate.model.Recipe
+import com.example.platemate.state.RecipeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class RecipeViewModel : ViewModel() {
-    private val _recipes = MutableStateFlow(
+    private val _uiState = MutableStateFlow<RecipeUiState>(
+        RecipeUiState.Success(
         listOf(
             Recipe(
                 id = 1,
@@ -33,7 +36,7 @@ class RecipeViewModel : ViewModel() {
                 ingredients = TODO(),
                 steps = TODO()
             )
-        )
+        ) )
     )
-    val recipes : StateFlow<List<Recipe>> =_recipes
+    val uiState : StateFlow<RecipeUiState> = _uiState.asStateFlow()
 }
