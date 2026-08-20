@@ -3,10 +3,11 @@ package com.example.platemate.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+//fully functional db table
 @Entity(tableName = "recipes")
 data class RecipeEntity(
     @PrimaryKey
-    val id: Int,
+    val id: Int, // use Spoonacular's real recipe id, no autoGenerate
 
     val title: String,
 

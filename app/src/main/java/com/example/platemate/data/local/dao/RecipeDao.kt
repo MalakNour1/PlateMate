@@ -7,6 +7,7 @@ import androidx.room.Query
 import com.example.platemate.data.local.entity.RecipeEntity
 import kotlinx.coroutines.flow.Flow
 
+//all our db operations
 @Dao
 interface RecipeDao {
 

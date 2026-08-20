@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.platemate"
+
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
@@ -19,7 +20,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -29,10 +31,12 @@ android {
             }
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
     }
@@ -49,10 +53,15 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
+    // Navigation
+    implementation(libs.androidx.navigation.compose.android)
+    implementation(libs.androidx.navigation.runtime.android)
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
+    implementation(libs.firebase.crashlytics.buildtools)
     ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
@@ -64,5 +73,9 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    implementation("androidx.navigation:navigation-compose:2.9.8")
+
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+
 }
