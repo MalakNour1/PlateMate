@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RecipeCard(title: String, summary : String, onClick:() -> Unit )
+fun RecipeCard(title: String, category : String?, onClick:() -> Unit )
 {
     Card(modifier = Modifier
         .fillMaxWidth()
@@ -21,7 +21,7 @@ fun RecipeCard(title: String, summary : String, onClick:() -> Unit )
         Column(modifier = Modifier.padding(16.dp))
         {
             Text(text=title)
-            Text(text=summary, modifier = Modifier.padding(8.dp))
+            Text(text=category?:"Unknown category", modifier = Modifier.padding(8.dp))
         }
     }
 }
