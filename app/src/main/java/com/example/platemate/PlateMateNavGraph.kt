@@ -2,28 +2,35 @@ package com.example.platemate
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+
 import androidx.navigation.navArgument
 import com.example.platemate.components.BottomNavigationBar
+import com.example.platemate.domain.model.Recipe
 import com.example.platemate.screens.FavoritesScreen
 import com.example.platemate.screens.HomeScreen
 import com.example.platemate.screens.RecipeDetailScreen
 import com.example.platemate.screens.SearchScreen
+import com.example.platemate.state.RecipeUiState
+import com.example.platemate.viewmodel.RecipeViewModel
 
 
 @Composable
-fun PlateMateNavGraph(navController: NavHostController)
+fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
 {
-    val navController = rememberNavController()
+
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry.value?.destination?.route
+    val recipeViewModel : RecipeViewModel = viewModel()
     Scaffold(
         bottomBar = {
             if (
@@ -74,6 +81,8 @@ fun PlateMateNavGraph(navController: NavHostController)
             composable("search")
             {
                 SearchScreen(
+                    recipes = recipes
+                    ,
                     onRecipeClick = { recipeId ->
                         navController.navigate("details/$recipeId")
                                     },
@@ -101,12 +110,31 @@ fun PlateMateNavGraph(navController: NavHostController)
                 backStackEntry ->
                 val recipeId =
                     backStackEntry.arguments?.getInt("recipeId")?: return@composable
-                RecipeDetailScreen(
-                    recipeId=recipeId,
-                    onBackCLick = {
-                        navController.popBackStack()
+                val uiState = recipeViewModel.uiState.collectAsState()
+                when ( val state = uiState.value) {
+                    is RecipeUiState.Success -> {
+                        RecipeDetailScreen(
+                            recipeId = recipeId,
+                            recipes = state.recipes,
+                            onBackCLick = {
+                                navController.popBackStack()
+                            }
+                        )
                     }
-                )
+
+                    RecipeUiState.Loading ->{
+                        Text("Loading...⏳⏳⏳")
+                    }
+
+                    RecipeUiState.Empty ->{
+                        Text("Recipes not found")
+                    }
+                    is RecipeUiState.Error ->
+                    {
+                        Text(state.message)
+                    }
+                }
+
             }
         }
     }
