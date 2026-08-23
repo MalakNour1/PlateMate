@@ -69,6 +69,23 @@ class RecipeViewModel : ViewModel() {
 
     val uiState: StateFlow<RecipeUiState> =
         _uiState.asStateFlow()
+
+    private val _favoriteIds = MutableStateFlow<Set<Int>>(emptySet())
+    val favoriteIds: StateFlow<Set<Int>> = _favoriteIds.asStateFlow()
+    fun toggleFavorite(recipeId: Int)
+    {
+        val currentFavorites =_favoriteIds.value.toMutableSet()
+
+        if(currentFavorites.contains(recipeId))
+        {
+            currentFavorites.remove(recipeId)
+        } else
+        {
+            currentFavorites.add(recipeId)
+        }
+        _favoriteIds.value = currentFavorites
+    }
+
 }
 //till the repository is connected to viewmodel
 /*class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
@@ -90,6 +107,21 @@ class RecipeViewModel : ViewModel() {
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = RecipeUiState.Loading
         )
+        private val _favoriteIds = MutableStateFlow<Set<Int>>(emptySet())
+    val favoriteIds: StateFlow<Set<Int>> = _favoriteIds.asStateFlow()
+    fun toggleFavorite(recipeId: Int)
+    {
+        val currentFavorites =_favoriteIds.value.toMutableSet()
+
+        if(currentFavorites.contains(recipeId))
+        {
+            currentFavorites.remove(recipeId)
+        } else
+        {
+            currentFavorites.add(recipeId)
+        }
+        _favoriteIds.value = currentFavorites
+    }
 
 
 }*/

@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -31,6 +32,7 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry.value?.destination?.route
     val recipeViewModel : RecipeViewModel = viewModel()
+    val favoriteIds by recipeViewModel.favoriteIds.collectAsState()
     Scaffold(
         bottomBar = {
             if (
@@ -93,11 +95,36 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
             }
             composable("favorites")
             {
-                FavoritesScreen(
-                    onBackClick = {
-                        navController.popBackStack()
+                val uiState = recipeViewModel.uiState.collectAsState()
+                when( val state = uiState.value)
+                {
+                    is RecipeUiState.Success -> {
+                        FavoritesScreen(
+                            recipes = state.recipes,
+                            favoriteIds =favoriteIds,
+                            onRecipeClick =
+                                {
+                                    recipeId -> navController.navigate("details/$recipeId")
+                                },
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
+                        )
+
                     }
-                )
+                    RecipeUiState.Loading ->{
+                        Text("Loading...⏳⏳⏳")
+                    }
+
+                    RecipeUiState.Empty ->{
+                        Text("Recipes not found")
+                    }
+                    is RecipeUiState.Error ->
+                    {
+                        Text(state.message)
+                    }
+                }
+
             }
             composable("details/{recipeId}",
                 arguments =listOf(navArgument("recipeId")
@@ -116,7 +143,11 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
                         RecipeDetailScreen(
                             recipeId = recipeId,
                             recipes = state.recipes,
-                            onBackCLick = {
+                            favoriteIds =favoriteIds,
+                            onFavoriteClick = {
+                                id -> recipeViewModel.toggleFavorite(id)
+                            },
+                            onBackClick = {
                                 navController.popBackStack()
                             }
                         )
