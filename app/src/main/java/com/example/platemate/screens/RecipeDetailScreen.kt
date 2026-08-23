@@ -18,6 +18,7 @@ fun RecipeDetailScreen(
     recipes:List<Recipe>,
     favoriteIds : Set<Int>,
     onFavoriteClick: (Int) -> Unit ,
+    onAddToShoppingList:()-> Unit,
     onBackClick:() -> Unit
 ){
     val isFavorite = recipeId in favoriteIds
@@ -64,6 +65,10 @@ fun RecipeDetailScreen(
                     " ♡ Add to Favorites"
                 }
             )
+        }
+        Button(onClick = onAddToShoppingList)
+        {
+            Text("Add to Shopping List")
         }
 
 

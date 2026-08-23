@@ -4,6 +4,7 @@ package com.example.platemate.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.platemate.domain.model.Ingredient
 import com.example.platemate.domain.model.Recipe
+import com.example.platemate.domain.model.ShoppingListItem
 import com.example.platemate.state.RecipeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -85,6 +86,37 @@ class RecipeViewModel : ViewModel() {
         }
         _favoriteIds.value = currentFavorites
     }
+    private val _shoppingList =
+        MutableStateFlow<List<ShoppingListItem>> (emptyList())
+    val shoppingList: StateFlow<List<ShoppingListItem>> = _shoppingList.asStateFlow()
+    fun addRecipeToShoppingList(recipe: Recipe) {
+        val newItem = recipe.ingredients.map { ingredient ->
+            ShoppingListItem(
+                name = ingredient.name,
+                amount = ingredient.amount
+            )
+        }
+
+        _shoppingList.value =
+            (_shoppingList.value + newItem).distinctBy { "${it.name}-${it.amount}" }
+        // distinctBy prevents the same item from being added again
+    }
+        fun toggleShoppingItem(item: ShoppingListItem)
+        {
+            _shoppingList.value=_shoppingList.value.map {
+                if(it == item)
+                {
+                    it.copy(isChecked = !it.isChecked)
+                    /*why copy? bc shoppinglistitem is a data class
+                     we dont directly modify it creates new version*/
+                } else
+                {
+                    it
+                }
+            }
+        }
+
+
 
 }
 //till the repository is connected to viewmodel
@@ -121,6 +153,35 @@ class RecipeViewModel : ViewModel() {
             currentFavorites.add(recipeId)
         }
         _favoriteIds.value = currentFavorites
+    }
+    private val _shoppingList =
+        MutableStateFlow<List<ShoppingListItem>> (emptyList())
+    val shoppingList: StateFlow<List<ShoppingListItem>> = _shoppingList.asStateFlow()
+    fun addRecipeToShoppingList(recipe: Recipe)
+    {
+        val newItem = recipe.ingredients.map{
+            ingredient ->
+            ShoppingListItem(
+                name = ingredient.name,
+                amount = ingredient.amount
+            )
+        }
+        _shoppingList.value=(_shoppingList.value + newItem).distinctBy { "${it.name}-${it.amount}" }
+        // distinctBy prevents the same item from being added again
+        fun toggleShoppingItem(item: ShoppingListItem)
+        {
+            _shoppingList.value=_shoppingList.value.map {
+                if(it == item)
+                {
+                    it.copy(isChecked = !it.isChecked)
+                    /*why copy? bc shoppinglistitem is a data class
+                     we dont directly modify it creates new version*/
+                } else
+                {
+                    it
+                }
+            }
+        }
     }
 
 

@@ -21,6 +21,7 @@ import com.example.platemate.screens.FavoritesScreen
 import com.example.platemate.screens.HomeScreen
 import com.example.platemate.screens.RecipeDetailScreen
 import com.example.platemate.screens.SearchScreen
+import com.example.platemate.screens.ShoppingListScreen
 import com.example.platemate.state.RecipeUiState
 import com.example.platemate.viewmodel.RecipeViewModel
 
@@ -147,6 +148,16 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
                             onFavoriteClick = {
                                 id -> recipeViewModel.toggleFavorite(id)
                             },
+                            onAddToShoppingList = {
+                                val recipe = state.recipes.find {
+                                    it.id==recipeId
+                                }
+                                if (recipe!=null)
+                                {
+                                    recipeViewModel.addRecipeToShoppingList(recipe)
+                                    navController.navigate("shopping_list")
+                                }
+                            },
                             onBackClick = {
                                 navController.popBackStack()
                             }
@@ -166,6 +177,19 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
                     }
                 }
 
+            }
+            composable("shopping_list")
+            {
+                val items by recipeViewModel.shoppingList.collectAsState()
+                ShoppingListScreen(
+                    items=items,
+                    onItemClick = {
+                        item -> recipeViewModel.toggleShoppingItem(item)
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
