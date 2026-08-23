@@ -16,7 +16,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 PlateMateNavGraph(
-                    navController = navController
+                    navController = navController,
+                    recipes = emptyList()
                 )
             }
         }
