@@ -16,8 +16,11 @@ import com.example.platemate.domain.model.Recipe
 fun RecipeDetailScreen(
     recipeId:Int,
     recipes:List<Recipe>,
-    onBackCLick:() -> Unit
+    favoriteIds : Set<Int>,
+    onFavoriteClick: (Int) -> Unit ,
+    onBackClick:() -> Unit
 ){
+    val isFavorite = recipeId in favoriteIds
     val recipe = recipes.find{it.id == recipeId}
     if (recipe ==null)
     {
@@ -27,7 +30,7 @@ fun RecipeDetailScreen(
              .padding(16.dp)
      ) {
          Text("Recipe not found")
-         Button(onClick = onBackCLick) { Text("Back") }
+         Button(onClick = onBackClick) { Text("Back") }
      }
         return
     }
@@ -48,9 +51,23 @@ fun RecipeDetailScreen(
         recipe.steps.forEachIndexed { index, step ->
             Text(text = "${index + 1}. $step")
         }
+        Button(onClick =
+            {
+                onFavoriteClick(recipeId)
+            }) {
+            Text(
+                if(isFavorite)
+                {
+                    " ❤\uFE0F Remove from Favorites"
+                } else
+                {
+                    " ♡ Add to Favorites"
+                }
+            )
+        }
 
 
-        Button(onClick = onBackCLick)
+        Button(onClick = onBackClick)
         {
             Text("Back")
         }
