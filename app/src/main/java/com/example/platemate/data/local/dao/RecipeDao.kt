@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.platemate.data.local.entity.RecipeEntity
 import kotlinx.coroutines.flow.Flow
+import androidx.paging.PagingSource
 
 //all our db operations
 @Dao
@@ -13,6 +14,9 @@ interface RecipeDao {
 
     @Query("SELECT * FROM recipes")
     fun observeRecipes(): Flow<List<RecipeEntity>>
+
+    @Query("SELECT * FROM recipes ORDER BY id ASC")
+    fun pagingSource(): PagingSource<Int, RecipeEntity>   // NEW
 
     @Query("SELECT * FROM recipes WHERE id = :recipeId")
     fun observeRecipeById(recipeId: Int): Flow<RecipeEntity?>

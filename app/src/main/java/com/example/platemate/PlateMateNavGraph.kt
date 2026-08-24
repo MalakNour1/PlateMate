@@ -7,16 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-
 import androidx.navigation.navArgument
 import com.example.platemate.components.BottomNavigationBar
-import com.example.platemate.domain.model.Recipe
 import com.example.platemate.screens.FavoritesScreen
 import com.example.platemate.screens.HomeScreen
 import com.example.platemate.screens.RecipeDetailScreen
@@ -27,134 +24,132 @@ import com.example.platemate.viewmodel.RecipeViewModel
 
 
 @Composable
-fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
-{
+fun PlateMateNavGraph(
+    navController: NavHostController,
+    viewModel: RecipeViewModel
+) {
 
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry.value?.destination?.route
-    val recipeViewModel : RecipeViewModel = viewModel()
-    val favoriteIds by recipeViewModel.favoriteIds.collectAsState()
+
+    // Hoisted once here, reused by every screen below — no need for each
+    // composable to collect its own copy.
+    val uiState by viewModel.uiState.collectAsState()
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
+
     Scaffold(
         bottomBar = {
             if (
-                currentRoute=="home"||
-                currentRoute=="search" ||
-                currentRoute=="favorites"
-            ){
+                currentRoute == "home" ||
+                currentRoute == "search" ||
+                currentRoute == "favorites"
+            ) {
 
-                BottomNavigationBar(currentRoute=currentRoute, onHomeClick = {
-                    navController.navigate("home"){
-                        popUpTo("home"){
-                            inclusive=false
+                BottomNavigationBar(currentRoute = currentRoute, onHomeClick = {
+                    navController.navigate("home") {
+                        popUpTo("home") {
+                            inclusive = false
                         }
-                        launchSingleTop =true
+                        launchSingleTop = true
                     }
-                                                                             },
+                },
                     onSearchClick = {
-                        navController.navigate("search"){
+                        navController.navigate("search") {
                             launchSingleTop = true
                         }
-                                    },
+                    },
                     onFavoritesClick = {
-                        navController.navigate("favorites"){
-                            launchSingleTop=true
+                        navController.navigate("favorites") {
+                            launchSingleTop = true
                         }
                     }
                 )
             }
         }
     ) { innerPadding ->
-        NavHost(navController=navController,
-            startDestination="home",
-            modifier = Modifier.padding(innerPadding)) {
-            composable("home")
-            {
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("home") {
                 HomeScreen(
-                    onSearchClick = {
-                        navController.navigate("search")
-                                    },
-                    onRecipeClick = { recipeId ->
-                        navController.navigate("details/$recipeId")
-                                    },
-                    onFavouriteClick = {
-                        navController.navigate("favorites")
-                    }
+                    onSearchClick = { navController.navigate("search") },
+                    onRecipeClick = { recipeId -> navController.navigate("details/$recipeId") },
+                    onFavouriteClick = { navController.navigate("favorites") },
+                    viewModel = viewModel   // <-- add this line
                 )
             }
-            composable("search")
-            {
-                SearchScreen(
-                    recipes = recipes
-                    ,
-                    onRecipeClick = { recipeId ->
-                        navController.navigate("details/$recipeId")
-                                    },
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-            composable("favorites")
-            {
-                val uiState = recipeViewModel.uiState.collectAsState()
-                when( val state = uiState.value)
-                {
+            composable("search") {
+                when (val state = uiState) {
                     is RecipeUiState.Success -> {
-                        FavoritesScreen(
+                        SearchScreen(
                             recipes = state.recipes,
-                            favoriteIds =favoriteIds,
-                            onRecipeClick =
-                                {
-                                    recipeId -> navController.navigate("details/$recipeId")
-                                },
+                            onRecipeClick = { recipeId ->
+                                navController.navigate("details/$recipeId")
+                            },
                             onBackClick = {
                                 navController.popBackStack()
                             }
                         )
-
                     }
-                    RecipeUiState.Loading ->{
+                    RecipeUiState.Loading -> {
                         Text("Loading...⏳⏳⏳")
                     }
-
-                    RecipeUiState.Empty ->{
+                    RecipeUiState.Empty -> {
                         Text("Recipes not found")
                     }
-                    is RecipeUiState.Error ->
-                    {
+                    is RecipeUiState.Error -> {
                         Text(state.message)
                     }
                 }
-
             }
-            composable("details/{recipeId}",
-                arguments =listOf(navArgument("recipeId")
-                {
-                    type = NavType.IntType
+            composable("favorites") {
+                when (val state = uiState) {
+                    is RecipeUiState.Success -> {
+                        FavoritesScreen(
+                            recipes = state.recipes,
+                            favoriteIds = favoriteIds,
+                            onRecipeClick = { recipeId ->
+                                navController.navigate("details/$recipeId")
+                            },
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+                    RecipeUiState.Loading -> {
+                        Text("Loading...⏳⏳⏳")
+                    }
+                    RecipeUiState.Empty -> {
+                        Text("Recipes not found")
+                    }
+                    is RecipeUiState.Error -> {
+                        Text(state.message)
+                    }
                 }
-                )
-            )
-            {
-                backStackEntry ->
+            }
+            composable(
+                "details/{recipeId}",
+                arguments = listOf(navArgument("recipeId") {
+                    type = NavType.IntType
+                })
+            ) { backStackEntry ->
                 val recipeId =
-                    backStackEntry.arguments?.getInt("recipeId")?: return@composable
-                val uiState = recipeViewModel.uiState.collectAsState()
-                when ( val state = uiState.value) {
+                    backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+                when (val state = uiState) {
                     is RecipeUiState.Success -> {
                         RecipeDetailScreen(
                             recipeId = recipeId,
                             recipes = state.recipes,
-                            favoriteIds =favoriteIds,
-                            onFavoriteClick = {
-                                id -> recipeViewModel.toggleFavorite(id)
+                            favoriteIds = favoriteIds,
+                            onFavoriteClick = { id ->
+                                viewModel.toggleFavorite(id)
                             },
                             onAddToShoppingList = {
-                                val recipe = state.recipes.find {
-                                    it.id==recipeId
-                                }
-                                if (recipe!=null)
-                                {
-                                    recipeViewModel.addRecipeToShoppingList(recipe)
+                                val recipe = state.recipes.find { it.id == recipeId }
+                                if (recipe != null) {
+                                    viewModel.addRecipeToShoppingList(recipe)
                                     navController.navigate("shopping_list")
                                 }
                             },
@@ -163,28 +158,23 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
                             }
                         )
                     }
-
-                    RecipeUiState.Loading ->{
+                    RecipeUiState.Loading -> {
                         Text("Loading...⏳⏳⏳")
                     }
-
-                    RecipeUiState.Empty ->{
+                    RecipeUiState.Empty -> {
                         Text("Recipes not found")
                     }
-                    is RecipeUiState.Error ->
-                    {
+                    is RecipeUiState.Error -> {
                         Text(state.message)
                     }
                 }
-
             }
-            composable("shopping_list")
-            {
-                val items by recipeViewModel.shoppingList.collectAsState()
+            composable("shopping_list") {
+                val items by viewModel.shoppingList.collectAsState()
                 ShoppingListScreen(
-                    items=items,
-                    onItemClick = {
-                        item -> recipeViewModel.toggleShoppingItem(item)
+                    items = items,
+                    onItemClick = { item ->
+                        viewModel.toggleShoppingItem(item)
                     },
                     onBackClick = {
                         navController.popBackStack()
@@ -193,5 +183,4 @@ fun PlateMateNavGraph(navController: NavHostController ,recipes: List<Recipe>)
             }
         }
     }
-
 }

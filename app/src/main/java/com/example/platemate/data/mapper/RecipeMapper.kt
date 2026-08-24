@@ -4,7 +4,7 @@ import com.example.platemate.data.remote.dto.RecipeDto
 import com.example.platemate.data.local.entity.RecipeEntity
 import com.example.platemate.domain.model.Recipe
 import com.example.platemate.domain.model.Ingredient
-import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
+import com.google.gson.reflect.TypeToken
 import com.google.gson.Gson
 
 private val gson = Gson()

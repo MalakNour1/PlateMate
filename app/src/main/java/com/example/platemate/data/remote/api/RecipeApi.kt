@@ -4,6 +4,7 @@ import com.example.platemate.data.remote.dto.RecipeDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+// is this right? shouldn't it be only contracts ? // call type response?
 interface RecipeApi {
 
     @GET("recipes/complexSearch")
