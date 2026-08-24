@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 @OptIn(ExperimentalPagingApi::class)
 class RecipeRepositoryImpl(
     private val recipeApi: RecipeApi,
-    private val database: PlateMateDatabase,   // <-- was recipeDao, now needs the whole database
+    private val database: PlateMateDatabase,
     private val apiKey: String
 ) : RecipeRepository {
 

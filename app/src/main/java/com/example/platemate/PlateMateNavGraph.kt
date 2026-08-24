@@ -1,5 +1,7 @@
 package com.example.platemate
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -14,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.platemate.components.BottomNavigationBar
+import com.example.platemate.components.OfflineBanner
 import com.example.platemate.screens.FavoritesScreen
 import com.example.platemate.screens.HomeScreen
 import com.example.platemate.screens.RecipeDetailScreen
@@ -36,6 +39,7 @@ fun PlateMateNavGraph(
     // composable to collect its own copy.
     val uiState by viewModel.uiState.collectAsState()
     val favoriteIds by viewModel.favoriteIds.collectAsState()
+    val isConnected by viewModel.isConnected.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -45,14 +49,15 @@ fun PlateMateNavGraph(
                 currentRoute == "favorites"
             ) {
 
-                BottomNavigationBar(currentRoute = currentRoute, onHomeClick = {
-                    navController.navigate("home") {
-                        popUpTo("home") {
-                            inclusive = false
+                BottomNavigationBar(
+                    currentRoute = currentRoute, onHomeClick = {
+                        navController.navigate("home") {
+                            popUpTo("home") {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
                         }
-                        launchSingleTop = true
-                    }
-                },
+                    },
                     onSearchClick = {
                         navController.navigate("search") {
                             launchSingleTop = true
@@ -67,119 +72,134 @@ fun PlateMateNavGraph(
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("home") {
-                HomeScreen(
-                    onSearchClick = { navController.navigate("search") },
-                    onRecipeClick = { recipeId -> navController.navigate("details/$recipeId") },
-                    onFavouriteClick = { navController.navigate("favorites") },
-                    viewModel = viewModel   // <-- add this line
-                )
-            }
-            composable("search") {
-                when (val state = uiState) {
-                    is RecipeUiState.Success -> {
-                        SearchScreen(
-                            recipes = state.recipes,
-                            onRecipeClick = { recipeId ->
-                                navController.navigate("details/$recipeId")
-                            },
-                            onBackClick = {
-                                navController.popBackStack()
-                            }
-                        )
-                    }
-                    RecipeUiState.Loading -> {
-                        Text("Loading...⏳⏳⏳")
-                    }
-                    RecipeUiState.Empty -> {
-                        Text("Recipes not found")
-                    }
-                    is RecipeUiState.Error -> {
-                        Text(state.message)
-                    }
+        Column(modifier = Modifier.fillMaxSize()) {
+            OfflineBanner(
+                isConnected = isConnected,
+                durationMillis = 10000
+            )
+            NavHost(
+                navController = navController,
+                startDestination = "home",
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable("home") {
+                    HomeScreen(
+                        onSearchClick = { navController.navigate("search") },
+                        onRecipeClick = { recipeId -> navController.navigate("details/$recipeId") },
+                        onFavouriteClick = { navController.navigate("favorites") },
+                        viewModel = viewModel
+                    )
                 }
-            }
-            composable("favorites") {
-                when (val state = uiState) {
-                    is RecipeUiState.Success -> {
-                        FavoritesScreen(
-                            recipes = state.recipes,
-                            favoriteIds = favoriteIds,
-                            onRecipeClick = { recipeId ->
-                                navController.navigate("details/$recipeId")
-                            },
-                            onBackClick = {
-                                navController.popBackStack()
-                            }
-                        )
-                    }
-                    RecipeUiState.Loading -> {
-                        Text("Loading...⏳⏳⏳")
-                    }
-                    RecipeUiState.Empty -> {
-                        Text("Recipes not found")
-                    }
-                    is RecipeUiState.Error -> {
-                        Text(state.message)
-                    }
-                }
-            }
-            composable(
-                "details/{recipeId}",
-                arguments = listOf(navArgument("recipeId") {
-                    type = NavType.IntType
-                })
-            ) { backStackEntry ->
-                val recipeId =
-                    backStackEntry.arguments?.getInt("recipeId") ?: return@composable
-                when (val state = uiState) {
-                    is RecipeUiState.Success -> {
-                        RecipeDetailScreen(
-                            recipeId = recipeId,
-                            recipes = state.recipes,
-                            favoriteIds = favoriteIds,
-                            onFavoriteClick = { id ->
-                                viewModel.toggleFavorite(id)
-                            },
-                            onAddToShoppingList = {
-                                val recipe = state.recipes.find { it.id == recipeId }
-                                if (recipe != null) {
-                                    viewModel.addRecipeToShoppingList(recipe)
-                                    navController.navigate("shopping_list")
+                composable("search") {
+                    when (val state = uiState) {
+                        is RecipeUiState.Success -> {
+                            SearchScreen(
+                                recipes = state.recipes,
+                                onRecipeClick = { recipeId ->
+                                    navController.navigate("details/$recipeId")
+                                },
+                                onBackClick = {
+                                    navController.popBackStack()
                                 }
-                            },
-                            onBackClick = {
-                                navController.popBackStack()
-                            }
-                        )
-                    }
-                    RecipeUiState.Loading -> {
-                        Text("Loading...⏳⏳⏳")
-                    }
-                    RecipeUiState.Empty -> {
-                        Text("Recipes not found")
-                    }
-                    is RecipeUiState.Error -> {
-                        Text(state.message)
+                            )
+                        }
+
+                        RecipeUiState.Loading -> {
+                            Text("Loading...⏳⏳⏳")
+                        }
+
+                        RecipeUiState.Empty -> {
+                            Text("Recipes not found")
+                        }
+
+                        is RecipeUiState.Error -> {
+                            Text(state.message)
+                        }
                     }
                 }
-            }
-            composable("shopping_list") {
-                val items by viewModel.shoppingList.collectAsState()
-                ShoppingListScreen(
-                    items = items,
-                    onItemClick = { item ->
-                        viewModel.toggleShoppingItem(item)
-                    },
-                    onBackClick = {
-                        navController.popBackStack()
+                composable("favorites") {
+                    when (val state = uiState) {
+                        is RecipeUiState.Success -> {
+                            FavoritesScreen(
+                                recipes = state.recipes,
+                                favoriteIds = favoriteIds,
+                                onRecipeClick = { recipeId ->
+                                    navController.navigate("details/$recipeId")
+                                },
+                                onBackClick = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        RecipeUiState.Loading -> {
+                            Text("Loading...⏳⏳⏳")
+                        }
+
+                        RecipeUiState.Empty -> {
+                            Text("Recipes not found")
+                        }
+
+                        is RecipeUiState.Error -> {
+                            Text(state.message)
+                        }
                     }
-                )
+                }
+                composable(
+                    "details/{recipeId}",
+                    arguments = listOf(navArgument("recipeId") {
+                        type = NavType.IntType
+                    })
+                ) { backStackEntry ->
+                    val recipeId =
+                        backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+                    when (val state = uiState) {
+                        is RecipeUiState.Success -> {
+                            RecipeDetailScreen(
+                                recipeId = recipeId,
+                                recipes = state.recipes,
+                                favoriteIds = favoriteIds,
+                                onFavoriteClick = { id ->
+                                    viewModel.toggleFavorite(id)
+                                },
+                                onAddToShoppingList = {
+                                    val recipe = state.recipes.find { it.id == recipeId }
+                                    if (recipe != null) {
+                                        viewModel.addRecipeToShoppingList(recipe)
+                                        navController.navigate("shopping_list")
+                                    }
+                                },
+                                onBackClick = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        RecipeUiState.Loading -> {
+                            Text("Loading...⏳⏳⏳")
+                        }
+
+                        RecipeUiState.Empty -> {
+                            Text("Recipes not found")
+                        }
+
+                        is RecipeUiState.Error -> {
+                            Text(state.message)
+                        }
+                    }
+                }
+                composable("shopping_list") {
+                    val items by viewModel.shoppingList.collectAsState()
+                    ShoppingListScreen(
+                        items = items,
+                        onItemClick = { item ->
+                            viewModel.toggleShoppingItem(item)
+                        },
+                        onBackClick = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
             }
         }
     }
