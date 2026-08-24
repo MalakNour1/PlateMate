@@ -8,6 +8,7 @@ import com.example.platemate.domain.model.Recipe
 import com.example.platemate.domain.model.ShoppingListItem
 import com.example.platemate.domain.repository.RecipeRepository
 import com.example.platemate.state.RecipeUiState
+import com.example.platemate.data.connectivity.NetworkMonitor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,8 +18,14 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
+class RecipeViewModel(
+    private val repository: RecipeRepository,
+    networkMonitor: NetworkMonitor
 
+) : ViewModel() {
+
+    val isConnected: StateFlow<Boolean> = networkMonitor.isConnected
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initialValue = true)
     val pagedRecipes: Flow<PagingData<Recipe>> =
         repository.getPagedRecipes().cachedIn(viewModelScope)
 

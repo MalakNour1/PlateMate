@@ -57,7 +57,7 @@ class RecipeRemoteMediator(
                 response.results.isEmpty() ||
                         (offset + response.results.size) >= response.totalResults
 
-            // 3. Save everything — recipes AND their remote keys — as one atomic unit
+            // 3. Save everything (recipes & their remote keys) as one atomic unit
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     recipeDao.clearRecipes()
