@@ -1,9 +1,17 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
 android {
     namespace = "com.example.platemate"
 
@@ -22,6 +30,12 @@ android {
 
         testInstrumentationRunner =
             "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            type = "String",
+            name = "SPOONACULAR_API_KEY",
+            value = "\"${localProperties.getProperty("SPOONACULAR_API_KEY")}\""
+        )
     }
 
     buildTypes {
@@ -39,6 +53,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -61,7 +76,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
-    implementation(libs.firebase.crashlytics.buildtools)
     ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
@@ -77,5 +91,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
+
+    // Paging 3
+    implementation("androidx.paging:paging-runtime:3.3.2")
+    implementation("androidx.paging:paging-compose:3.3.2")
 
 }
