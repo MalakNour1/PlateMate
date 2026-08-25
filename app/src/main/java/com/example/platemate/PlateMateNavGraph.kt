@@ -75,7 +75,7 @@ fun PlateMateNavGraph(
         Column(modifier = Modifier.fillMaxSize()) {
             OfflineBanner(
                 isConnected = isConnected,
-                durationMillis = 10000
+                durationMillis = 5000
             )
             NavHost(
                 navController = navController,
