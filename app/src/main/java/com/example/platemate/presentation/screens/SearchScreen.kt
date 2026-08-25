@@ -1,4 +1,4 @@
-package com.example.platemate.screens
+package com.example.platemate.presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.platemate.components.RecipeCard
+import com.example.platemate.presentation.components.RecipeCard
 import com.example.platemate.domain.model.Recipe
 
 @Composable

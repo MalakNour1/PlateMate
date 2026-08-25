@@ -15,15 +15,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.platemate.components.BottomNavigationBar
-import com.example.platemate.components.OfflineBanner
-import com.example.platemate.screens.FavoritesScreen
-import com.example.platemate.screens.HomeScreen
-import com.example.platemate.screens.RecipeDetailScreen
-import com.example.platemate.screens.SearchScreen
-import com.example.platemate.screens.ShoppingListScreen
-import com.example.platemate.state.RecipeUiState
-import com.example.platemate.viewmodel.RecipeViewModel
+import com.example.platemate.presentation.components.BottomNavigationBar
+import com.example.platemate.presentation.components.OfflineBanner
+import com.example.platemate.presentation.screens.FavoritesScreen
+import com.example.platemate.presentation.screens.HomeScreen
+import com.example.platemate.presentation.screens.RecipeDetailScreen
+import com.example.platemate.presentation.screens.SearchScreen
+import com.example.platemate.presentation.screens.ShoppingListScreen
+import com.example.platemate.presentation.state.RecipeUiState
+import com.example.platemate.presentation.viewmodel.RecipeViewModel
 
 
 @Composable
