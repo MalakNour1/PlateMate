@@ -21,6 +21,10 @@ class RecipeRemoteMediator(
     private val recipeDao = database.recipeDao()
     private val remoteKeyDao = database.remoteKeyDao()
 
+    companion object {
+        private const val CACHE_TIMEOUT_MS = 15 * 60 * 1000L // 15 minutes
+    }
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, RecipeEntity>
@@ -28,10 +32,21 @@ class RecipeRemoteMediator(
         return try {
             // 1. Figure out which page to fetch
             val page = when (loadType) {
-                LoadType.REFRESH -> 0
+                LoadType.REFRESH -> {
+                    val lastCacheTime = recipeDao.getLatestCacheTime()
+                    val isCacheStillFresh = lastCacheTime != null &&
+                            (System.currentTimeMillis() - lastCacheTime) < CACHE_TIMEOUT_MS
+
+                    if (isCacheStillFresh) {
+                        // Cache is still good -> don't hit the network at all.
+                        // Room already has the data, PagingSource will read it directly.
+                        return MediatorResult.Success(endOfPaginationReached = true)
+                    }
+                    0 // no cache, or it's stale -> fetch page 0 fresh
+                }
 
                 LoadType.PREPEND ->
-                    // Spoonacular pages forward only — nothing to load "before" page 0
+                    // Spoonacular pages forward only, nothing to load "before" page 0
                     return MediatorResult.Success(endOfPaginationReached = true)
 
                 LoadType.APPEND -> {
