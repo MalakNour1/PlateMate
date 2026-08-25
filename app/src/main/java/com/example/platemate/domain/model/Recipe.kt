@@ -6,10 +6,5 @@ data class Recipe(
     val imageUrl: String?,
     val category: String?,
     val ingredients: List<Ingredient>,
-    val steps: List<String>
-)
-
-data class Ingredient(
-    val name: String,
-    val amount: String?
+    val steps: List<Step>
 )

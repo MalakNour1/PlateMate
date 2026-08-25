@@ -3,78 +3,94 @@ package com.example.platemate.presentation.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.platemate.domain.model.Recipe
-
 
 @Composable
 fun RecipeDetailScreen(
-    recipeId:Int,
-    recipes:List<Recipe>,
-    favoriteIds : Set<Int>,
-    onFavoriteClick: (Int) -> Unit ,
-    onAddToShoppingList:()-> Unit,
-    onBackClick:() -> Unit
-){
-    val isFavorite = recipeId in favoriteIds
-    val recipe = recipes.find{it.id == recipeId}
-    if (recipe ==null)
-    {
-     Column(
-         modifier = Modifier
-             .fillMaxSize()
-             .padding(16.dp)
-     ) {
-         Text("Recipe not found")
-         Button(onClick = onBackClick) { Text("Back") }
-     }
-        return
-    }
+    recipe: Recipe,
+    favoriteIds: Set<Int>,
+    onFavoriteClick: (Int) -> Unit,
+    onAddToShoppingList: () -> Unit,
+    onBackClick: () -> Unit
+) {
+    val isFavorite = recipe.id in favoriteIds
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement= Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(text = recipe.title)
-        Text("Recipe Id:$recipeId")
-        Text(text = recipe.category ?: "Unknown category")
-        Text("ingredients")
-        recipe.ingredients.forEach { ingredient ->
-            Text(text = " •${ingredient.name}" + (ingredient.amount?.let { " - $it " } ?: ""))
-        }
-        Text("Instructions")
-        recipe.steps.forEachIndexed { index, step ->
-            Text(text = "${index + 1}. $step")
-        }
-        Button(onClick =
-            {
-                onFavoriteClick(recipeId)
-            }) {
-            Text(
-                if(isFavorite)
-                {
-                    " ❤\uFE0F Remove from Favorites"
-                } else
-                {
-                    " ♡ Add to Favorites"
-                }
+        // Title
+        Text(text = recipe.title, style = MaterialTheme.typography.headlineSmall)
+
+        // Image
+        if (recipe.imageUrl != null) {
+            AsyncImage(
+                model = recipe.imageUrl,
+                contentDescription = recipe.title,
+                modifier = Modifier.fillMaxWidth()
             )
         }
-        Button(onClick = onAddToShoppingList)
-        {
-            Text("Add to Shopping List")
+
+        // Category
+        if (recipe.category != null) {
+            Text(
+                text = "Category: ${recipe.category}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
+        // Ingredients
+        Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+        if (recipe.ingredients.isEmpty()) {
+            Text("No ingredients available")
+        } else {
+            recipe.ingredients.forEach { ingredient ->
+                Text("• ${ingredient.name} ${ingredient.amount ?: ""}")
+            }
+        }
 
-        Button(onClick = onBackClick)
-        {
-            Text("Back")
+        // Instructions
+        Text("Instructions", style = MaterialTheme.typography.titleMedium)
+        if (recipe.steps.isEmpty()) {
+            Text("No instructions available")
+        } else {
+            recipe.steps.forEachIndexed { index, step ->
+                Text("${index + 1}. $step")
+            }
+        }
+
+        // Buttons
+        Button(
+            onClick = { onFavoriteClick(recipe.id) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (isFavorite) "❤️ Remove from Favorites" else "♡ Add to Favorites")
+        }
+        Button(
+            onClick = onAddToShoppingList,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("🛒 Add to Shopping List")
+        }
+        Button(
+            onClick = onBackClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("← Back")
         }
     }
 }

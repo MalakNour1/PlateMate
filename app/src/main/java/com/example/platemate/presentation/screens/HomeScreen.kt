@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.example.platemate.presentation.components.RecipeCard
+import com.example.platemate.components.RecipeCard
 import com.example.platemate.presentation.viewmodel.RecipeViewModel
 
 @Composable
@@ -23,10 +24,11 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onFavouriteClick: () -> Unit,
     onRecipeClick: (Int) -> Unit,
-    viewModel: RecipeViewModel   // no default — must be passed the shared instance from the nav graph
+    viewModel: RecipeViewModel
 ) {
     val searchQuery = remember { mutableStateOf("") }
     val recipes = viewModel.pagedRecipes.collectAsLazyPagingItems()
+    val isRefreshing = recipes.loadState.refresh is LoadState.Loading
 
     Column(
         modifier = Modifier
@@ -36,6 +38,7 @@ fun HomeScreen(
     ) {
         Text("PlateMate")
         Text("Find your next meal")
+
         OutlinedTextField(
             value = searchQuery.value,
             onValueChange = { searchQuery.value = it },
@@ -44,38 +47,82 @@ fun HomeScreen(
             singleLine = true
         )
 
-        Text("Popular Recipes")
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                android.util.Log.d("HomeScreen", "User pulled to refresh!")
+                viewModel.onPullToRefresh()
+                recipes.refresh()
+            },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
         ) {
-            items(recipes.itemCount) { index ->
-                val recipe = recipes[index]
-                if (recipe != null) {
-                    RecipeCard(
-                        title = recipe.title,
-                        category = recipe.category,
-                        onClick = { onRecipeClick(recipe.id) }
-                    )
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(
+                    text = "Popular Recipes",
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(recipes.itemCount) { index ->
+                        val recipe = recipes[index]
+                        if (recipe != null) {
+                            RecipeCard(
+                                title = recipe.title,
+                                category = recipe.category,
+                                imageUrl = recipe.imageUrl,
+                                onClick = { onRecipeClick(recipe.id) }
+                            )
+                        }
+                    }
+
+                    when (recipes.loadState.append) {
+                        is LoadState.Loading -> item {
+                            Text(
+                                text = "Loading more...⏳",
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        is LoadState.Error -> item {
+                            Text(
+                                text = "Couldn't load more recipes",
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        else -> Unit
+                    }
                 }
-            }
 
-            // Loading/error state at the BOTTOM of the list (first page, e.g. spinner while scrolling)
-            when (recipes.loadState.append) {
-                is LoadState.Loading -> item { Text("Loading more...⏳") }
-                is LoadState.Error -> item { Text("Couldn't load more recipes") }
-                else -> Unit
-            }
-        }
-
-        // Loading/error/empty state for the FIRST page load
-        when (val refresh = recipes.loadState.refresh) {
-            is LoadState.Loading -> Text("Loading recipes...⏳")
-            is LoadState.Error -> Text(refresh.error.message ?: "Failed to load recipes")
-            else -> {
-                if (recipes.itemCount == 0) {
-                    Text("No recipes found.")
+                when (val refresh = recipes.loadState.refresh) {
+                    is LoadState.Loading -> {
+                        Text(
+                            text = "Loading recipes...⏳",
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                    is LoadState.Error -> {
+                        Text(
+                            text = refresh.error.message ?: "Failed to load recipes",
+                            color = androidx.compose.ui.graphics.Color.Red,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                    else -> {
+                        if (recipes.itemCount == 0) {
+                            Text(
+                                text = "No recipes found.",
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
                 }
             }
         }

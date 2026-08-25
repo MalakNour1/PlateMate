@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class RecipeViewModel(
     private val repository: RecipeRepository,
@@ -71,6 +72,36 @@ class RecipeViewModel(
                 // we don't mutate it directly, we create a new version
             } else {
                 it
+            }
+        }
+    }
+
+    fun onPullToRefresh() {
+        android.util.Log.d("ViewModel", "Pull to refresh triggered!")
+        repository.requestForceRefresh()
+    }
+
+    private val _recipeDetail = MutableStateFlow<Recipe?>(null)
+    val recipeDetail: StateFlow<Recipe?> = _recipeDetail.asStateFlow()
+    private val _isLoadingDetail = MutableStateFlow(false)
+    val isLoadingDetail: StateFlow<Boolean> = _isLoadingDetail.asStateFlow()
+
+    fun fetchRecipeDetail(recipeId: Int) {
+        viewModelScope.launch {
+            try {
+                _isLoadingDetail.value = true
+                android.util.Log.d("ViewModel", "Fetching detail for recipe $recipeId")
+
+                repository.fetchAndCacheRecipeDetails(recipeId)
+
+                repository.getRecipeById(recipeId).collect { recipe ->
+                    _recipeDetail.value = recipe
+                    _isLoadingDetail.value = false
+                    android.util.Log.d("ViewModel", "Recipe detail loaded: ${recipe?.title}")
+                }
+            } catch (e: Exception) {
+                _isLoadingDetail.value = false
+                android.util.Log.e("ViewModel", "Failed to fetch recipe detail: ${e.message}")
             }
         }
     }

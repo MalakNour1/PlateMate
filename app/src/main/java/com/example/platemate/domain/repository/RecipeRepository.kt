@@ -8,4 +8,7 @@ interface RecipeRepository {
     fun getPagedRecipes(): Flow<PagingData<Recipe>>   // for Home screen
     fun getAllRecipes(): Flow<List<Recipe>>            // for Favorites/Detail — reads full cache
     fun getRecipeById(id: Int): Flow<Recipe?>
+    fun requestForceRefresh()
+    suspend fun fetchAndCacheRecipeDetails(recipeId: Int)
+
 }
