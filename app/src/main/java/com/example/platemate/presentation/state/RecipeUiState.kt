@@ -1,4 +1,4 @@
-package com.example.platemate.state
+package com.example.platemate.presentation.state
 
 import com.example.platemate.domain.model.Recipe
 

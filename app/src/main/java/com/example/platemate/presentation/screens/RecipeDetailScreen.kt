@@ -1,4 +1,4 @@
-package com.example.platemate.screens
+package com.example.platemate.presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

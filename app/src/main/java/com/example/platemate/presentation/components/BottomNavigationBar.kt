@@ -1,4 +1,4 @@
-package com.example.platemate.components
+package com.example.platemate.presentation.components
 
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem

@@ -1,4 +1,4 @@
-package com.example.platemate.screens
+package com.example.platemate.presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.example.platemate.components.RecipeCard
-import com.example.platemate.viewmodel.RecipeViewModel
+import com.example.platemate.presentation.components.RecipeCard
+import com.example.platemate.presentation.viewmodel.RecipeViewModel
 
 @Composable
 fun HomeScreen(

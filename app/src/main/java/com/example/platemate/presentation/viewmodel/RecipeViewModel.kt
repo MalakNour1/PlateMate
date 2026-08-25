@@ -1,4 +1,4 @@
-package com.example.platemate.viewmodel
+package com.example.platemate.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +7,7 @@ import androidx.paging.cachedIn
 import com.example.platemate.domain.model.Recipe
 import com.example.platemate.domain.model.ShoppingListItem
 import com.example.platemate.domain.repository.RecipeRepository
-import com.example.platemate.state.RecipeUiState
+import com.example.platemate.presentation.state.RecipeUiState
 import com.example.platemate.data.connectivity.NetworkMonitor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

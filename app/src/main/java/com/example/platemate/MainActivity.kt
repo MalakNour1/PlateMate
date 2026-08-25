@@ -10,8 +10,8 @@ import com.example.platemate.data.connectivity.NetworkMonitorImpl
 import com.example.platemate.data.local.database.PlateMateDatabase
 import com.example.platemate.data.remote.NetworkModule
 import com.example.platemate.data.repository.RecipeRepositoryImpl
-import com.example.platemate.viewmodel.RecipeViewModel
-import com.example.platemate.viewmodel.RecipeViewModelFactory
+import com.example.platemate.presentation.viewmodel.RecipeViewModel
+import com.example.platemate.presentation.viewmodel.RecipeViewModelFactory
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

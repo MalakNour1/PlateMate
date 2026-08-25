@@ -1,4 +1,4 @@
-package com.example.platemate.ui.theme
+package com.example.platemate.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
