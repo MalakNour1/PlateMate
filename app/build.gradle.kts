@@ -61,7 +61,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -95,5 +97,10 @@ dependencies {
     // Paging 3
     implementation("androidx.paging:paging-runtime:3.3.2")
     implementation("androidx.paging:paging-compose:3.3.2")
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    //Coil is the standard Compose image-loading library — handles downloading, caching, and displaying a URL in one line.
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 }

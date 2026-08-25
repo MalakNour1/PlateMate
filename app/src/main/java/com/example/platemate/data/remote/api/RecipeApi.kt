@@ -1,7 +1,10 @@
 package com.example.platemate.data.remote.api
 
+import com.example.platemate.data.remote.dto.RecipeDetailDto
 import com.example.platemate.data.remote.dto.RecipeDto
+import com.example.platemate.data.remote.dto.SearchResponseDto
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 interface RecipeApi {
 
@@ -12,11 +15,11 @@ interface RecipeApi {
         @Query("offset") offset: Int = 0,
         @Query("apiKey") apiKey: String
     ): SearchResponseDto
+
+    @GET("recipes/{id}/information")
+    suspend fun getRecipeDetails(
+        @Path("id") id: Int,
+        @Query("apiKey") apiKey: String
+    ): RecipeDetailDto
 }
 
-data class SearchResponseDto(
-    val results: List<RecipeDto>,
-    val offset: Int,
-    val number: Int,
-    val totalResults: Int
-)

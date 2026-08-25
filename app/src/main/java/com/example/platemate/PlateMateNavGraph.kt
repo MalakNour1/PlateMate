@@ -1,13 +1,17 @@
 package com.example.platemate
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -151,19 +155,34 @@ fun PlateMateNavGraph(
                         type = NavType.IntType
                     })
                 ) { backStackEntry ->
-                    val recipeId =
-                        backStackEntry.arguments?.getInt("recipeId") ?: return@composable
-                    when (val state = uiState) {
-                        is RecipeUiState.Success -> {
+                    val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+
+                    LaunchedEffect(recipeId) {
+                        viewModel.fetchRecipeDetail(recipeId)
+                    }
+
+                    val recipeDetail by viewModel.recipeDetail.collectAsState()
+                    val isLoadingDetail by viewModel.isLoadingDetail.collectAsState()
+                    val favoriteIds by viewModel.favoriteIds.collectAsState()
+
+                    when {
+                        isLoadingDetail -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        recipeDetail != null -> {
                             RecipeDetailScreen(
-                                recipeId = recipeId,
-                                recipes = state.recipes,
+                                recipe = recipeDetail!!,
                                 favoriteIds = favoriteIds,
                                 onFavoriteClick = { id ->
                                     viewModel.toggleFavorite(id)
                                 },
                                 onAddToShoppingList = {
-                                    val recipe = state.recipes.find { it.id == recipeId }
+                                    val recipe = recipeDetail
                                     if (recipe != null) {
                                         viewModel.addRecipeToShoppingList(recipe)
                                         navController.navigate("shopping_list")
@@ -174,17 +193,13 @@ fun PlateMateNavGraph(
                                 }
                             )
                         }
-
-                        RecipeUiState.Loading -> {
-                            Text("Loading...⏳⏳⏳")
-                        }
-
-                        RecipeUiState.Empty -> {
-                            Text("Recipes not found")
-                        }
-
-                        is RecipeUiState.Error -> {
-                            Text(state.message)
+                        else -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Recipe not found")
+                            }
                         }
                     }
                 }
