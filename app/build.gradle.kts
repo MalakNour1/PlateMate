@@ -102,5 +102,7 @@ dependencies {
 
     //Coil is the standard Compose image-loading library — handles downloading, caching, and displaying a URL in one line.
     implementation("io.coil-kt:coil-compose:2.7.0")
+//icon
+    implementation("androidx.compose.material:material-icons-extended:1.7.x") // match your compose version
 
 }
