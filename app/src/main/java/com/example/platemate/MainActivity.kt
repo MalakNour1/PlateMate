@@ -10,6 +10,7 @@ import com.example.platemate.data.connectivity.NetworkMonitorImpl
 import com.example.platemate.data.local.database.PlateMateDatabase
 import com.example.platemate.data.remote.NetworkModule
 import com.example.platemate.data.repository.RecipeRepositoryImpl
+import com.example.platemate.presentation.theme.PlateMateTheme
 import com.example.platemate.presentation.viewmodel.RecipeViewModel
 import com.example.platemate.presentation.viewmodel.RecipeViewModelFactory
 class MainActivity : ComponentActivity() {
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
         val networkMonitor = NetworkMonitorImpl(applicationContext)
 
         setContent {
-            MaterialTheme {
+            PlateMateTheme {
                 val navController = rememberNavController()
 
                 val viewModel: RecipeViewModel = viewModel(

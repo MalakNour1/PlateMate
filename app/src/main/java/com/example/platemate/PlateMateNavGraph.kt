@@ -23,6 +23,7 @@ import com.example.platemate.presentation.components.BottomNavigationBar
 import com.example.platemate.presentation.components.OfflineBanner
 import com.example.platemate.presentation.screens.FavoritesScreen
 import com.example.platemate.presentation.screens.HomeScreen
+import com.example.platemate.presentation.screens.MealPlannerScreen
 import com.example.platemate.presentation.screens.RecipeDetailScreen
 import com.example.platemate.presentation.screens.SearchScreen
 import com.example.platemate.presentation.screens.ShoppingListScreen
@@ -64,6 +65,16 @@ fun PlateMateNavGraph(
                     },
                     onSearchClick = {
                         navController.navigate("search") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onAddToShoppingList = {
+                        navController.navigate("shopping_list") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onMealPlannerClick = {
+                        navController.navigate("meal_planner") {
                             launchSingleTop = true
                         }
                     },
@@ -121,6 +132,20 @@ fun PlateMateNavGraph(
                         }
                     }
                 }
+
+                composable("meal_planner") {
+
+                    val mealPlans by
+                    viewModel.mealPlans.collectAsState()
+
+                    MealPlannerScreen(
+                        mealPlans = mealPlans,
+                        onBackClick =
+                            {
+                                navController.popBackStack()
+                            }
+                    )
+                }
                 composable("favorites") {
                     when (val state = uiState) {
                         is RecipeUiState.Success -> {
@@ -149,6 +174,7 @@ fun PlateMateNavGraph(
                         }
                     }
                 }
+
                 composable(
                     "details/{recipeId}",
                     arguments = listOf(navArgument("recipeId") {
@@ -187,6 +213,12 @@ fun PlateMateNavGraph(
                                         viewModel.addRecipeToShoppingList(recipe)
                                         navController.navigate("shopping_list")
                                     }
+                                },
+                                onAddToMealPlanner = { day ->
+                                    viewModel.assignRecipeToDay(
+                                        day = day,
+                                        recipe = recipeDetail!!
+                                    )
                                 },
                                 onBackClick = {
                                     navController.popBackStack()

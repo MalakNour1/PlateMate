@@ -9,6 +9,7 @@ import com.example.platemate.domain.model.ShoppingListItem
 import com.example.platemate.domain.repository.RecipeRepository
 import com.example.platemate.presentation.state.RecipeUiState
 import com.example.platemate.data.connectivity.NetworkMonitor
+import com.example.platemate.domain.model.MealPlan
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -104,5 +105,28 @@ class RecipeViewModel(
                 android.util.Log.e("ViewModel", "Failed to fetch recipe detail: ${e.message}")
             }
         }
+    }
+    private val _mealPlans =
+        MutableStateFlow<List<MealPlan>>(emptyList())
+
+    val mealPlans: StateFlow<List<MealPlan>> =
+        _mealPlans.asStateFlow()
+    fun assignRecipeToDay(
+        day: String,
+        recipe: Recipe
+    ) {
+        val updatedPlans =
+            _mealPlans.value
+                .filterNot { it.day == day }
+                .toMutableList()
+
+        updatedPlans.add(
+            MealPlan(
+                day = day,
+                recipe = recipe
+            )
+        )
+
+        _mealPlans.value = updatedPlans
     }
 }

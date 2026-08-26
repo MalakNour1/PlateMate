@@ -11,10 +11,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.platemate.domain.model.Recipe
+import com.example.platemate.presentation.components.DayPicker
 
 @Composable
 fun RecipeDetailScreen(
@@ -22,9 +27,13 @@ fun RecipeDetailScreen(
     favoriteIds: Set<Int>,
     onFavoriteClick: (Int) -> Unit,
     onAddToShoppingList: () -> Unit,
+    onAddToMealPlanner: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val isFavorite = recipe.id in favoriteIds
+    var showDayPicker by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = Modifier
@@ -80,6 +89,16 @@ fun RecipeDetailScreen(
         ) {
             Text(if (isFavorite) "❤️ Remove from Favorites" else "♡ Add to Favorites")
         }
+
+        Button(
+            modifier = Modifier.fillMaxWidth()
+            ,
+            onClick = {
+                showDayPicker = true
+            }
+        ) {
+            Text(" \uD83C\uDF7D Add to Meal Planner")
+        }
         Button(
             onClick = onAddToShoppingList,
             modifier = Modifier.fillMaxWidth()
@@ -92,5 +111,20 @@ fun RecipeDetailScreen(
         ) {
             Text("← Back")
         }
+    }
+    if (showDayPicker) {
+
+        DayPicker(
+            onDaySelected = { day ->
+
+                onAddToMealPlanner(day)
+
+                showDayPicker = false
+            },
+
+            onDismiss = {
+                showDayPicker = false
+            }
+        )
     }
 }

@@ -7,9 +7,11 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun BottomNavigationBar(currentRoute: String?,
-    onHomeClick:() -> Unit,
-    onSearchClick:()-> Unit,
-    onFavoritesClick:() -> Unit)
+                        onHomeClick:() -> Unit,
+                        onSearchClick:()-> Unit,
+                        onAddToShoppingList: () -> Unit,
+                        onMealPlannerClick:()-> Unit,
+                        onFavoritesClick:() -> Unit)
 {
     NavigationBar {
 
@@ -33,6 +35,27 @@ fun BottomNavigationBar(currentRoute: String?,
             label = {
                 Text("Search")
             })
+        NavigationBarItem(
+            selected = currentRoute =="shopping_list",
+            onClick = onAddToShoppingList,
+            icon =
+                {
+                    Text("🛒")
+                },
+            label ={
+                Text("Groceries")
+            }
+        )
+        NavigationBarItem(
+            selected = currentRoute =="meal_planner",
+            onClick = onMealPlannerClick,
+            icon = {
+                Text("\uD83C\uDF7D")
+            },
+            label={
+                Text("MealPlan")
+            }
+        )
         NavigationBarItem(
             selected = currentRoute == "favorites",
             onClick = onFavoritesClick,
