@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -29,6 +30,7 @@ import com.example.platemate.presentation.screens.SearchScreen
 import com.example.platemate.presentation.screens.ShoppingListScreen
 import com.example.platemate.presentation.state.RecipeUiState
 import com.example.platemate.presentation.viewmodel.RecipeViewModel
+import com.example.platemate.presentation.viewmodel.ThemeViewModel
 
 
 @Composable
@@ -45,6 +47,11 @@ fun PlateMateNavGraph(
     val uiState by viewModel.uiState.collectAsState()
     val favoriteIds by viewModel.favoriteIds.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
+
+    // Single shared instance so the toggle button's state is the same one
+    // MainActivity's PlateMateTheme(darkTheme = ...) reads from.
+    val themeViewModel: ThemeViewModel = viewModel()
+    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -102,7 +109,9 @@ fun PlateMateNavGraph(
                         onSearchClick = { navController.navigate("search") },
                         onRecipeClick = { recipeId -> navController.navigate("details/$recipeId") },
                         onFavouriteClick = { navController.navigate("favorites") },
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme,
+                        onToggleTheme = { themeViewModel.toggleTheme() }
                     )
                 }
                 composable("search") {

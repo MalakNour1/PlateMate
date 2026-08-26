@@ -87,24 +87,28 @@ class RecipeViewModel(
     private val _isLoadingDetail = MutableStateFlow(false)
     val isLoadingDetail: StateFlow<Boolean> = _isLoadingDetail.asStateFlow()
 
-    fun fetchRecipeDetail(recipeId: Int) {
-        viewModelScope.launch {
-            try {
-                _isLoadingDetail.value = true
-                android.util.Log.d("ViewModel", "Fetching detail for recipe $recipeId")
-
-                repository.fetchAndCacheRecipeDetails(recipeId)
-
-                repository.getRecipeById(recipeId).collect { recipe ->
-                    _recipeDetail.value = recipe
-                    _isLoadingDetail.value = false
-                    android.util.Log.d("ViewModel", "Recipe detail loaded: ${recipe?.title}")
-                }
-            } catch (e: Exception) {
+    fun fetchRecipeDetail(recipeId: Int)
+    {
+        viewModelScope.launch{
+        try {
+            _isLoadingDetail.value = true
+            android.util.Log.d("ViewModel",
+                "Fetching detail for recipe $recipeId")
+            repository.fetchAndCacheRecipeDetails(recipeId)
+            repository.getRecipeById(recipeId).collect {
+                recipe ->
+                _recipeDetail.value = recipe
                 _isLoadingDetail.value = false
-                android.util.Log.e("ViewModel", "Failed to fetch recipe detail: ${e.message}")
+                android.util.Log.d("ViewModel",
+                    "Recipe detail loaded: ${recipe?.title}")
             }
         }
+        catch (e: Exception) {
+            _isLoadingDetail.value = false
+            android.util.Log.e("ViewModel",
+                "Failed to fetch recipe detail: ${e.message}")
+        }
+    }
     }
     private val _mealPlans =
         MutableStateFlow<List<MealPlan>>(emptyList())
