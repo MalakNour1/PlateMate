@@ -42,6 +42,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.example.platemate.components.RecipeCard
 import com.example.platemate.presentation.viewmodel.RecipeViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +97,7 @@ fun HomeScreen(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "Good morning \uD83D\uDC4B",
+                    text = greetingForCurrentTime(),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -168,6 +169,15 @@ fun HomeScreen(
                 }
             }
         }
+    }
+}
+@Composable
+private fun greetingForCurrentTime(): String {
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    return when {
+        hour < 12 -> "Good morning \uD83D\uDC4B"
+        hour < 17 -> "Good afternoon \uD83D\uDC4B"
+        else -> "Good evening \uD83D\uDC4B"
     }
 }
 

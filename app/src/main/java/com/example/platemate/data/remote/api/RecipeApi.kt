@@ -13,6 +13,7 @@ interface RecipeApi {
         @Query("query") query: String? = null,
         @Query("number") number: Int = 20,
         @Query("offset") offset: Int = 0,
+        @Query("addRecipeInformation") addRecipeInformation : Boolean =true,
         @Query("apiKey") apiKey: String
     ): SearchResponseDto
 

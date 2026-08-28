@@ -52,7 +52,9 @@ fun SearchScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("All") }
 
-    val categories = listOf("All", "Main", "Dessert", "Breakfast", "Appetizer", "Drinks")
+    val categories = remember(recipes) {
+        listOf("All") + recipes.mapNotNull { it.category }.distinct().sorted()
+    }
 
     val filteredRecipes = recipes.filter { recipe ->
         val matchesSearch = recipe.title.contains(searchQuery, ignoreCase = true)
