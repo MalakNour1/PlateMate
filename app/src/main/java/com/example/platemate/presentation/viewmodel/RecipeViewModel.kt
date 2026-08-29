@@ -9,7 +9,6 @@ import com.example.platemate.domain.model.ShoppingListItem
 import com.example.platemate.domain.repository.RecipeRepository
 import com.example.platemate.presentation.state.RecipeUiState
 import com.example.platemate.data.connectivity.NetworkMonitor
-import com.example.platemate.domain.model.MealPlan
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,7 +45,10 @@ class RecipeViewModel(
         android.util.Log.d("ViewModel", "toggleFavorite called for id=$recipeId")
         viewModelScope.launch {
             val isCurrentlyFavorite = favoriteIds.value.contains(recipeId)
-            android.util.Log.d("ViewModel", "recipeId=$recipeId currently favorite=$isCurrentlyFavorite, setting to ${!isCurrentlyFavorite}")
+            android.util.Log.d(
+                "ViewModel",
+                "recipeId=$recipeId currently favorite=$isCurrentlyFavorite, setting to ${!isCurrentlyFavorite}"
+            )
             try {
                 repository.setFavorite(recipeId, !isCurrentlyFavorite)
                 android.util.Log.d("ViewModel", "setFavorite completed for id=$recipeId")
@@ -93,50 +95,33 @@ class RecipeViewModel(
     private val _isLoadingDetail = MutableStateFlow(false)
     val isLoadingDetail: StateFlow<Boolean> = _isLoadingDetail.asStateFlow()
 
-    fun fetchRecipeDetail(recipeId: Int)
-    {
-        viewModelScope.launch{
+    fun fetchRecipeDetail(recipeId: Int) {
+        viewModelScope.launch {
             try {
                 _isLoadingDetail.value = true
-                android.util.Log.d("ViewModel",
-                    "Fetching detail for recipe $recipeId")
+                android.util.Log.d(
+                    "ViewModel",
+                    "Fetching detail for recipe $recipeId"
+                )
                 repository.fetchAndCacheRecipeDetails(recipeId)
-                repository.getRecipeById(recipeId).collect {
-                        recipe ->
+                repository.getRecipeById(recipeId).collect { recipe ->
                     _recipeDetail.value = recipe
                     _isLoadingDetail.value = false
-                    android.util.Log.d("ViewModel",
-                        "Recipe detail loaded: ${recipe?.title}")
+                    android.util.Log.d(
+                        "ViewModel",
+                        "Recipe detail loaded: ${recipe?.title}"
+                    )
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _isLoadingDetail.value = false
-                android.util.Log.e("ViewModel",
-                    "Failed to fetch recipe detail: ${e.message}")
+                android.util.Log.e(
+                    "ViewModel",
+                    "Failed to fetch recipe detail: ${e.message}"
+                )
             }
         }
     }
-    private val _mealPlans =
-        MutableStateFlow<List<MealPlan>>(emptyList())
 
-    val mealPlans: StateFlow<List<MealPlan>> =
-        _mealPlans.asStateFlow()
-    fun assignRecipeToDay(
-        day: String,
-        recipe: Recipe
-    ) {
-        val updatedPlans =
-            _mealPlans.value
-                .filterNot { it.day == day }
-                .toMutableList()
-
-        updatedPlans.add(
-            MealPlan(
-                day = day,
-                recipe = recipe
-            )
-        )
-
-        _mealPlans.value = updatedPlans
-    }
+    // Meal planning now lives entirely in MealPlanViewModel + MealPlanRepository
+    // (Room-backed). This class no longer owns any meal-plan state.
 }

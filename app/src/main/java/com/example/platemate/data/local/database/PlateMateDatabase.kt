@@ -4,39 +4,34 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.platemate.data.local.dao.FavoriteDao
+import com.example.platemate.data.local.dao.MealPlanDao
 import com.example.platemate.data.local.dao.RecipeDao
 import com.example.platemate.data.local.dao.RemoteKeyDao
 import com.example.platemate.data.local.entity.FavoriteEntity
+import com.example.platemate.data.local.entity.MealPlanEntity
 import com.example.platemate.data.local.entity.RecipeEntity
 import com.example.platemate.data.local.entity.RemoteKeyEntity
 
 @Database(
-    entities = [RecipeEntity::class, RemoteKeyEntity::class, FavoriteEntity:: class],
-    version = 2,
+    entities = [
+        RecipeEntity::class,
+        RemoteKeyEntity::class,
+        FavoriteEntity::class,
+        MealPlanEntity::class
+    ],
+    version = 4,               // bumped past both branches' claims (2 and 3) to be safely ahead of either
     exportSchema = true
 )
 abstract class PlateMateDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
     abstract fun remoteKeyDao(): RemoteKeyDao
-
     abstract fun favoriteDao(): FavoriteDao
-
+    abstract fun mealPlanDao(): MealPlanDao
 
     companion object {
         @Volatile
         private var INSTANCE: PlateMateDatabase? = null
-
-        private val MIGRATION_1_2 = object : Migration(1,2){
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS favorites ("  +
-                            "recipeId INTEGER NOT NULL PRIMARY KEY)"
-                )
-            }
-        }
 
         fun getInstance(context: Context): PlateMateDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -45,7 +40,10 @@ abstract class PlateMateDatabase : RoomDatabase() {
                     PlateMateDatabase::class.java,
                     "platemate_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    // Dev-stage only: no real user data to preserve yet, so a schema
+                    // mismatch just rebuilds the DB from scratch instead of crashing.
+                    // Swap this for real Migration objects before a production release.
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }

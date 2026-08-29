@@ -29,6 +29,7 @@ import com.example.platemate.presentation.screens.RecipeDetailScreen
 import com.example.platemate.presentation.screens.SearchScreen
 import com.example.platemate.presentation.screens.ShoppingListScreen
 import com.example.platemate.presentation.state.RecipeUiState
+import com.example.platemate.presentation.viewmodel.MealPlanViewModel
 import com.example.platemate.presentation.viewmodel.RecipeViewModel
 import com.example.platemate.presentation.viewmodel.ThemeViewModel
 
@@ -36,7 +37,8 @@ import com.example.platemate.presentation.viewmodel.ThemeViewModel
 @Composable
 fun PlateMateNavGraph(
     navController: NavHostController,
-    viewModel: RecipeViewModel
+    viewModel: RecipeViewModel,
+    mealPlanViewModel: MealPlanViewModel
 ) {
 
     val backStackEntry = navController.currentBackStackEntryAsState()
@@ -143,16 +145,18 @@ fun PlateMateNavGraph(
                 }
 
                 composable("meal_planner") {
-
-                    val mealPlans by
-                    viewModel.mealPlans.collectAsState()
+                    val mealPlans by mealPlanViewModel.mealPlans.collectAsState()
 
                     MealPlannerScreen(
                         mealPlans = mealPlans,
-                        onBackClick =
-                            {
-                                navController.popBackStack()
+                        onBackClick = { navController.popBackStack() },
+                        onDayClick = { day ->
+                            // go to recipe details
+                            val meal = mealPlans.find { it.day == day }
+                            meal?.recipe?.id?.let { recipeId ->
+                                navController.navigate("details/$recipeId")
                             }
+                        }
                     )
                 }
                 composable("favorites") {
@@ -224,10 +228,7 @@ fun PlateMateNavGraph(
                                     }
                                 },
                                 onAddToMealPlanner = { day ->
-                                    viewModel.assignRecipeToDay(
-                                        day = day,
-                                        recipe = recipeDetail!!
-                                    )
+                                    mealPlanViewModel.assignMeal(day = day, recipe = recipeDetail!!)   // was: viewModel.assignRecipeToDay(...)
                                 },
                                 onBackClick = {
                                     navController.popBackStack()
