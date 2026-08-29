@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -98,30 +99,50 @@ class RecipeViewModel(
     fun fetchRecipeDetail(recipeId: Int) {
         viewModelScope.launch {
             try {
+                // Remove the previously displayed recipe
+                _recipeDetail.value = null
+
+                // Show loading screen
                 _isLoadingDetail.value = true
+
                 android.util.Log.d(
                     "ViewModel",
                     "Fetching detail for recipe $recipeId"
                 )
+
+                // Fetch details from API and save them to Room
                 repository.fetchAndCacheRecipeDetails(recipeId)
-                repository.getRecipeById(recipeId).collect { recipe ->
+
+                // Get the newly cached recipe
+                val recipe = repository
+                    .getRecipeById(recipeId)
+                    .first()
+
+                // Make sure we display the requested recipe
+                if (recipe?.id == recipeId) {
                     _recipeDetail.value = recipe
-                    _isLoadingDetail.value = false
+
                     android.util.Log.d(
                         "ViewModel",
-                        "Recipe detail loaded: ${recipe?.title}"
+                        "Recipe detail loaded: ${recipe.title}"
                     )
                 }
+
             } catch (e: Exception) {
-                _isLoadingDetail.value = false
+
+                _recipeDetail.value = null
+
                 android.util.Log.e(
                     "ViewModel",
                     "Failed to fetch recipe detail: ${e.message}"
                 )
+
+            } finally {
+                _isLoadingDetail.value = false
             }
         }
+    }
     }
 
     // Meal planning now lives entirely in MealPlanViewModel + MealPlanRepository
     // (Room-backed). This class no longer owns any meal-plan state.
-}
