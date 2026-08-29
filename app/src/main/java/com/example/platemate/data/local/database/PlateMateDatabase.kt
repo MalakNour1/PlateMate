@@ -20,7 +20,7 @@ import com.example.platemate.data.local.entity.RemoteKeyEntity
         FavoriteEntity::class,
         MealPlanEntity::class
     ],
-    version = 4,               // bumped past both branches' claims (2 and 3) to be safely ahead of either
+    version = 4,
     exportSchema = true
 )
 abstract class PlateMateDatabase : RoomDatabase() {
@@ -40,10 +40,7 @@ abstract class PlateMateDatabase : RoomDatabase() {
                     PlateMateDatabase::class.java,
                     "platemate_database"
                 )
-                    // Dev-stage only: no real user data to preserve yet, so a schema
-                    // mismatch just rebuilds the DB from scratch instead of crashing.
-                    // Swap this for real Migration objects before a production release.
-                    .fallbackToDestructiveMigration()
+                  //  .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }

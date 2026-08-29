@@ -1,7 +1,6 @@
 package com.example.platemate.data.remote.api
 
 import com.example.platemate.data.remote.dto.RecipeDetailDto
-import com.example.platemate.data.remote.dto.RecipeDto
 import com.example.platemate.data.remote.dto.SearchResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
