@@ -18,5 +18,8 @@ data class RecipeDetailDto(
     @SerializedName("analyzedInstructions")
     val instructions: List<InstructionDto>,
 
-    val plainInstructions: String?
+    val plainInstructions: String?,
+
+    @SerializedName("dishTypes")
+    val dishTypes:List<String>?=null
 )

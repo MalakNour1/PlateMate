@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.example.platemate.data.local.database.PlateMateDatabase
+import com.example.platemate.data.local.entity.FavoriteEntity
 import com.example.platemate.data.mapper.toDomain
 import com.example.platemate.data.mapper.toEntity
 import com.example.platemate.data.remote.api.RecipeApi
@@ -23,6 +24,7 @@ class RecipeRepositoryImpl(
 ) : RecipeRepository {
 
     private val recipeDao = database.recipeDao()
+    private val favoriteDao = database.favoriteDao()
     private val mediator = RecipeRemoteMediator(recipeApi, database, apiKey)
 
     override fun getPagedRecipes(): Flow<PagingData<Recipe>> {
@@ -69,6 +71,18 @@ class RecipeRepositoryImpl(
             android.util.Log.e("Repository", "Failed to fetch recipe details for ID: $recipeId")
             android.util.Log.e("Repository", "Error: ${e.message}")
             throw e
+        }
+    }
+
+    override fun observeFavoriteIds(): Flow<Set<Int>> =
+        favoriteDao.observeFavoritesIds().map { it.toSet() }
+
+    override suspend fun setFavorite(recipeId: Int, isfavorite: Boolean) {
+        if(isfavorite)
+        {
+            favoriteDao.addFavorite((FavoriteEntity(recipeId)))
+        }else{
+            favoriteDao.removeFavorite(recipeId)
         }
     }
 }

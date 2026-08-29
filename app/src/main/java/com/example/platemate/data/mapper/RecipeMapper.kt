@@ -13,12 +13,15 @@ import com.google.gson.reflect.TypeToken
 
 private val gson = Gson()
 
+private fun List<String>?.toCategoryLabel(): String? =
+    this?.firstOrNull()?.replaceFirstChar { it.uppercase() }
+
 fun RecipeDto.toEntity(cachedAt: Long): RecipeEntity {
     return RecipeEntity(
         id = id,
         title = title,
         imageUrl = image,
-        category = null,
+        category = dishTypes.toCategoryLabel(),
         ingredientsJson = gson.toJson(emptyList<Ingredient>()),
         stepsJson = gson.toJson(emptyList<Step>()),
         cachedAt = cachedAt
@@ -39,7 +42,7 @@ fun RecipeDetailDto.toEntity(cachedAt: Long): RecipeEntity {
         id = id,
         title = title,
         imageUrl = image,
-        category = null,
+        category = dishTypes.toCategoryLabel(),
         ingredientsJson = gson.toJson(ingredients.map { it.toDomain() }),
         stepsJson = gson.toJson(steps),
         cachedAt = cachedAt

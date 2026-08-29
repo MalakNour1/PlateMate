@@ -36,17 +36,26 @@ class RecipeViewModel(
         .catch { error -> emit(RecipeUiState.Error(error.message ?: "Something went wrong")) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecipeUiState.Loading)
 
-    private val _favoriteIds = MutableStateFlow<Set<Int>>(emptySet())
-    val favoriteIds: StateFlow<Set<Int>> = _favoriteIds.asStateFlow()
+    // Sourced from Room via the repository now, instead of an in-memory
+    // set -- survives process death and app restarts.
+    val favoriteIds: StateFlow<Set<Int>> = repository.observeFavoriteIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     fun toggleFavorite(recipeId: Int) {
-        val currentFavorites = _favoriteIds.value.toMutableSet()
-        if (currentFavorites.contains(recipeId)) {
-            currentFavorites.remove(recipeId)
-        } else {
-            currentFavorites.add(recipeId)
+        android.util.Log.d("ViewModel", "toggleFavorite called for id=$recipeId")
+        viewModelScope.launch {
+            val isCurrentlyFavorite = favoriteIds.value.contains(recipeId)
+            android.util.Log.d(
+                "ViewModel",
+                "recipeId=$recipeId currently favorite=$isCurrentlyFavorite, setting to ${!isCurrentlyFavorite}"
+            )
+            try {
+                repository.setFavorite(recipeId, !isCurrentlyFavorite)
+                android.util.Log.d("ViewModel", "setFavorite completed for id=$recipeId")
+            } catch (e: Exception) {
+                android.util.Log.e("ViewModel", "setFavorite FAILED for id=$recipeId: ${e.message}", e)
+            }
         }
-        _favoriteIds.value = currentFavorites
     }
 
     private val _shoppingList = MutableStateFlow<List<ShoppingListItem>>(emptyList())
@@ -112,4 +121,7 @@ class RecipeViewModel(
             }
         }
     }
+
+    // Meal planning now lives entirely in MealPlanViewModel + MealPlanRepository
+    // (Room-backed). This class no longer owns any meal-plan state.
 }

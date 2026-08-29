@@ -11,4 +11,6 @@ interface RecipeRepository {
     fun requestForceRefresh()
     suspend fun fetchAndCacheRecipeDetails(recipeId: Int)
 
+    fun observeFavoriteIds():Flow<Set<Int>>
+    suspend fun setFavorite(recipeId: Int, isfavorite: Boolean)
 }
