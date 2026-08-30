@@ -1,4 +1,4 @@
-package com.example.platemate.presentation.viewmodel
+package com.example.platemate.presentation.viewmodel.mealPlan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

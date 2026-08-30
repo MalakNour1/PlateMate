@@ -1,14 +1,14 @@
-package com.example.platemate.presentation.viewmodel
+package com.example.platemate.presentation.viewmodel.recipe
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.platemate.data.connectivity.NetworkMonitor
 import com.example.platemate.domain.model.Recipe
-import com.example.platemate.domain.model.ShoppingListItem
 import com.example.platemate.domain.repository.RecipeRepository
 import com.example.platemate.presentation.state.RecipeUiState
-import com.example.platemate.data.connectivity.NetworkMonitor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,51 +43,24 @@ class RecipeViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     fun toggleFavorite(recipeId: Int) {
-        android.util.Log.d("ViewModel", "toggleFavorite called for id=$recipeId")
+        Log.d("ViewModel", "toggleFavorite called for id=$recipeId")
         viewModelScope.launch {
             val isCurrentlyFavorite = favoriteIds.value.contains(recipeId)
-            android.util.Log.d(
+            Log.d(
                 "ViewModel",
                 "recipeId=$recipeId currently favorite=$isCurrentlyFavorite, setting to ${!isCurrentlyFavorite}"
             )
             try {
                 repository.setFavorite(recipeId, !isCurrentlyFavorite)
-                android.util.Log.d("ViewModel", "setFavorite completed for id=$recipeId")
+                Log.d("ViewModel", "setFavorite completed for id=$recipeId")
             } catch (e: Exception) {
-                android.util.Log.e("ViewModel", "setFavorite FAILED for id=$recipeId: ${e.message}", e)
-            }
-        }
-    }
-
-    private val _shoppingList = MutableStateFlow<List<ShoppingListItem>>(emptyList())
-    val shoppingList: StateFlow<List<ShoppingListItem>> = _shoppingList.asStateFlow()
-
-    fun addRecipeToShoppingList(recipe: Recipe) {
-        val newItems = recipe.ingredients.map { ingredient ->
-            ShoppingListItem(
-                name = ingredient.name,
-                amount = ingredient.amount
-            )
-        }
-        _shoppingList.value =
-            (_shoppingList.value + newItems).distinctBy { "${it.name}-${it.amount}" }
-        // distinctBy prevents the same item from being added again
-    }
-
-    fun toggleShoppingItem(item: ShoppingListItem) {
-        _shoppingList.value = _shoppingList.value.map {
-            if (it == item) {
-                it.copy(isChecked = !it.isChecked)
-                // why copy? because ShoppingListItem is a data class,
-                // we don't mutate it directly, we create a new version
-            } else {
-                it
+                Log.e("ViewModel", "setFavorite FAILED for id=$recipeId: ${e.message}", e)
             }
         }
     }
 
     fun onPullToRefresh() {
-        android.util.Log.d("ViewModel", "Pull to refresh triggered!")
+        Log.d("ViewModel", "Pull to refresh triggered!")
         repository.requestForceRefresh()
     }
 
@@ -105,7 +78,7 @@ class RecipeViewModel(
                 // Show loading screen
                 _isLoadingDetail.value = true
 
-                android.util.Log.d(
+                Log.d(
                     "ViewModel",
                     "Fetching detail for recipe $recipeId"
                 )
@@ -122,7 +95,7 @@ class RecipeViewModel(
                 if (recipe?.id == recipeId) {
                     _recipeDetail.value = recipe
 
-                    android.util.Log.d(
+                    Log.d(
                         "ViewModel",
                         "Recipe detail loaded: ${recipe.title}"
                     )
@@ -132,7 +105,7 @@ class RecipeViewModel(
 
                 _recipeDetail.value = null
 
-                android.util.Log.e(
+                Log.e(
                     "ViewModel",
                     "Failed to fetch recipe detail: ${e.message}"
                 )
@@ -143,6 +116,3 @@ class RecipeViewModel(
         }
     }
     }
-
-    // Meal planning now lives entirely in MealPlanViewModel + MealPlanRepository
-    // (Room-backed). This class no longer owns any meal-plan state.

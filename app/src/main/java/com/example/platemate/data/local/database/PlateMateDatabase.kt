@@ -8,19 +8,22 @@ import com.example.platemate.data.local.dao.FavoriteDao
 import com.example.platemate.data.local.dao.MealPlanDao
 import com.example.platemate.data.local.dao.RecipeDao
 import com.example.platemate.data.local.dao.RemoteKeyDao
+import com.example.platemate.data.local.dao.ShoppingListDao
 import com.example.platemate.data.local.entity.FavoriteEntity
 import com.example.platemate.data.local.entity.MealPlanEntity
 import com.example.platemate.data.local.entity.RecipeEntity
 import com.example.platemate.data.local.entity.RemoteKeyEntity
+import com.example.platemate.data.local.entity.ShoppingListEntity
 
 @Database(
     entities = [
         RecipeEntity::class,
         RemoteKeyEntity::class,
         FavoriteEntity::class,
-        MealPlanEntity::class
+        MealPlanEntity::class,
+        ShoppingListEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 abstract class PlateMateDatabase : RoomDatabase() {
@@ -28,6 +31,7 @@ abstract class PlateMateDatabase : RoomDatabase() {
     abstract fun remoteKeyDao(): RemoteKeyDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun mealPlanDao(): MealPlanDao
+    abstract fun shoppingListDao(): ShoppingListDao
 
     companion object {
         @Volatile

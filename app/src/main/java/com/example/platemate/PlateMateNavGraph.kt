@@ -29,16 +29,18 @@ import com.example.platemate.presentation.screens.RecipeDetailScreen
 import com.example.platemate.presentation.screens.SearchScreen
 import com.example.platemate.presentation.screens.ShoppingListScreen
 import com.example.platemate.presentation.state.RecipeUiState
-import com.example.platemate.presentation.viewmodel.MealPlanViewModel
-import com.example.platemate.presentation.viewmodel.RecipeViewModel
-import com.example.platemate.presentation.viewmodel.ThemeViewModel
+import com.example.platemate.presentation.viewmodel.mealPlan.MealPlanViewModel
+import com.example.platemate.presentation.viewmodel.recipe.RecipeViewModel
+import com.example.platemate.presentation.viewmodel.shoppingList.ShoppingListViewModel
+import com.example.platemate.presentation.viewmodel.theme.ThemeViewModel
 
 
 @Composable
 fun PlateMateNavGraph(
     navController: NavHostController,
     viewModel: RecipeViewModel,
-    mealPlanViewModel: MealPlanViewModel
+    mealPlanViewModel: MealPlanViewModel,
+    shoppingListViewModel: ShoppingListViewModel
 ) {
 
     val backStackEntry = navController.currentBackStackEntryAsState()
@@ -223,7 +225,7 @@ fun PlateMateNavGraph(
                                 onAddToShoppingList = {
                                     val recipe = recipeDetail
                                     if (recipe != null) {
-                                        viewModel.addRecipeToShoppingList(recipe)
+                                        shoppingListViewModel.addRecipeToShoppingList(recipe)
                                         navController.navigate("shopping_list")
                                     }
                                 },
@@ -246,11 +248,11 @@ fun PlateMateNavGraph(
                     }
                 }
                 composable("shopping_list") {
-                    val items by viewModel.shoppingList.collectAsState()
+                    val items by shoppingListViewModel.shoppingList.collectAsState()
                     ShoppingListScreen(
                         items = items,
                         onItemClick = { item ->
-                            viewModel.toggleShoppingItem(item)
+                            shoppingListViewModel.toggleShoppingItem(item)
                         },
                         onBackClick = {
                             navController.popBackStack()

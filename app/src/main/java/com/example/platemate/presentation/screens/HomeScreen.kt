@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -41,7 +40,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.example.platemate.components.RecipeCard
-import com.example.platemate.presentation.viewmodel.RecipeViewModel
+import com.example.platemate.presentation.viewmodel.recipe.RecipeViewModel
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
