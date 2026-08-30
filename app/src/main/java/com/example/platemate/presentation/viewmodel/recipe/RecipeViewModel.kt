@@ -33,7 +33,11 @@ class RecipeViewModel(
 
     val uiState: StateFlow<RecipeUiState> = repository
         .getAllRecipes()
-        .map { recipes -> if (recipes.isEmpty()) RecipeUiState.Empty else RecipeUiState.Success(recipes) }
+        .map { recipes ->
+            if (recipes.isEmpty()) RecipeUiState.Empty else RecipeUiState.Success(
+                recipes
+            )
+        }
         .catch { error -> emit(RecipeUiState.Error(error.message ?: "Something went wrong")) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecipeUiState.Loading)
 
@@ -68,51 +72,40 @@ class RecipeViewModel(
     val recipeDetail: StateFlow<Recipe?> = _recipeDetail.asStateFlow()
     private val _isLoadingDetail = MutableStateFlow(false)
     val isLoadingDetail: StateFlow<Boolean> = _isLoadingDetail.asStateFlow()
-
     fun fetchRecipeDetail(recipeId: Int) {
         viewModelScope.launch {
-            try {
-                // Remove the previously displayed recipe
+            // 1. Show whatever's already cached immediately — works fully offline,
+            //    since this recipe came from a list/favorites screen that's already in Room.
+            val cached = repository.getRecipeById(recipeId).first()
+            if (cached != null) {
+                _recipeDetail.value = cached
+                _isLoadingDetail.value = false
+            } else {
                 _recipeDetail.value = null
-
-                // Show loading screen
                 _isLoadingDetail.value = true
+            }
 
-                Log.d(
-                    "ViewModel",
-                    "Fetching detail for recipe $recipeId"
-                )
-
-                // Fetch details from API and save them to Room
+            // 2. Try to fetch full details (ingredients/steps) and upgrade in place.
+            //    If this fails (offline, API error), keep showing whatever we already
+            //    had from step 1 instead of wiping it.
+            try {
+                android.util.Log.d("ViewModel", "Fetching detail for recipe $recipeId")
                 repository.fetchAndCacheRecipeDetails(recipeId)
-
-                // Get the newly cached recipe
-                val recipe = repository
-                    .getRecipeById(recipeId)
-                    .first()
-
-                // Make sure we display the requested recipe
-                if (recipe?.id == recipeId) {
-                    _recipeDetail.value = recipe
-
-                    Log.d(
-                        "ViewModel",
-                        "Recipe detail loaded: ${recipe.title}"
-                    )
+                val enriched = repository.getRecipeById(recipeId).first()
+                if (enriched != null) {
+                    _recipeDetail.value = enriched
+                    Log.d("ViewModel", "Recipe detail loaded: ${enriched.title}")
                 }
-
             } catch (e: Exception) {
-
-                _recipeDetail.value = null
-
-                Log.e(
+                android.util.Log.e(
                     "ViewModel",
-                    "Failed to fetch recipe detail: ${e.message}"
+                    "Could not refresh recipe detail, showing cached data if any: ${e.message}"
                 )
-
+                // Intentionally NOT clearing _recipeDetail here — offline should show
+                // whatever was already cached, not "Recipe not found".
             } finally {
                 _isLoadingDetail.value = false
             }
         }
     }
-    }
+}
