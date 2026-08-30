@@ -12,12 +12,15 @@ import com.example.platemate.data.local.database.PlateMateDatabase
 import com.example.platemate.data.remote.NetworkModule
 import com.example.platemate.data.repository.MealPlanRepositoryImpl
 import com.example.platemate.data.repository.RecipeRepositoryImpl
+import com.example.platemate.data.repository.ShoppingListRepositoryImpl
 import com.example.platemate.presentation.theme.PlateMateTheme
-import com.example.platemate.presentation.viewmodel.MealPlanViewModel
-import com.example.platemate.presentation.viewmodel.MealPlanViewModelFactory
-import com.example.platemate.presentation.viewmodel.RecipeViewModel
-import com.example.platemate.presentation.viewmodel.RecipeViewModelFactory
-import com.example.platemate.presentation.viewmodel.ThemeViewModel
+import com.example.platemate.presentation.viewmodel.mealPlan.MealPlanViewModel
+import com.example.platemate.presentation.viewmodel.mealPlan.MealPlanViewModelFactory
+import com.example.platemate.presentation.viewmodel.recipe.RecipeViewModel
+import com.example.platemate.presentation.viewmodel.recipe.RecipeViewModelFactory
+import com.example.platemate.presentation.viewmodel.shoppingList.ShoppingListViewModel
+import com.example.platemate.presentation.viewmodel.shoppingList.ShoppingListViewModelFactory
+import com.example.platemate.presentation.viewmodel.theme.ThemeViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -41,6 +44,8 @@ class MainActivity : ComponentActivity() {
             recipeDao = database.recipeDao()
         )
 
+        val shoppingListRepository = ShoppingListRepositoryImpl(database.shoppingListDao())
+
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
             val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
@@ -58,10 +63,15 @@ class MainActivity : ComponentActivity() {
                     factory = MealPlanViewModelFactory(mealPlanRepository)
                 )
 
+                val shoppingListViewModel: ShoppingListViewModel = viewModel(
+                    factory = ShoppingListViewModelFactory(shoppingListRepository)
+                )
+
                 PlateMateNavGraph(
                     navController = navController,
                     viewModel = viewModel,
-                    mealPlanViewModel = mealPlanViewModel
+                    mealPlanViewModel = mealPlanViewModel,
+                    shoppingListViewModel = shoppingListViewModel
                 )
             }
         }
