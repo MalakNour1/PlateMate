@@ -1,11 +1,12 @@
-package com.example.platemate.data.remote
+package com.example.platemate.data.network
 
 import com.example.platemate.data.remote.api.RecipeApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
+// Network package: Retrofit + API calls + DTOs
+// everything that talks to Spoonacular
 object NetworkModule {
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY   // full request+response bodies

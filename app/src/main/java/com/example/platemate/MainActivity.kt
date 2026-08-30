@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.platemate.data.connectivity.NetworkMonitorImpl
 import com.example.platemate.data.local.database.PlateMateDatabase
-import com.example.platemate.data.remote.NetworkModule
+import com.example.platemate.data.network.NetworkModule
 import com.example.platemate.data.repository.MealPlanRepositoryImpl
 import com.example.platemate.data.repository.RecipeRepositoryImpl
 import com.example.platemate.data.repository.ShoppingListRepositoryImpl

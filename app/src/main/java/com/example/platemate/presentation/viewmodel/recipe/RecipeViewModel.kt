@@ -27,7 +27,18 @@ class RecipeViewModel(
 ) : ViewModel() {
 
     val isConnected: StateFlow<Boolean> = networkMonitor.isConnected
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initialValue = true)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            initialValue = true
+        )
+        .also { flow ->
+            viewModelScope.launch {
+                flow.collect { value ->
+                    Log.d("ViewModel", "isConnected changed to: $value")
+                }
+            }
+        }
     val pagedRecipes: Flow<PagingData<Recipe>> =
         repository.getPagedRecipes().cachedIn(viewModelScope)
 
@@ -89,7 +100,7 @@ class RecipeViewModel(
             //    If this fails (offline, API error), keep showing whatever we already
             //    had from step 1 instead of wiping it.
             try {
-                android.util.Log.d("ViewModel", "Fetching detail for recipe $recipeId")
+                Log.d("ViewModel", "Fetching detail for recipe $recipeId")
                 repository.fetchAndCacheRecipeDetails(recipeId)
                 val enriched = repository.getRecipeById(recipeId).first()
                 if (enriched != null) {
@@ -97,7 +108,7 @@ class RecipeViewModel(
                     Log.d("ViewModel", "Recipe detail loaded: ${enriched.title}")
                 }
             } catch (e: Exception) {
-                android.util.Log.e(
+                Log.e(
                     "ViewModel",
                     "Could not refresh recipe detail, showing cached data if any: ${e.message}"
                 )

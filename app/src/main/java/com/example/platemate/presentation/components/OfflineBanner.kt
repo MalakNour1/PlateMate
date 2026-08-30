@@ -20,57 +20,23 @@ fun OfflineBanner(
     isConnected: Boolean?,
     durationMillis: Long = 5000
 ) {
-    var previousConnectionState by remember { mutableStateOf<Boolean?>(null) }
-    var lastShownTime by remember { mutableStateOf(0L) }
     var showBanner by remember { mutableStateOf(false) }
-    var hasShownFirstBanner by remember { mutableStateOf(false) }
-    var isDismissedByUser by remember { mutableStateOf(false) }
-
     val scope = rememberCoroutineScope()
-    var hideJob by remember { mutableStateOf<Job?>(null) }
+    var job by remember { mutableStateOf<Job?>(null) }
 
-    // Handle banner visibility based on state changes
-    fun updateBannerVisibility(connected: Boolean?) {
-        if (connected == null) {
-            showBanner = false
-            hideJob?.cancel()
-            return
-        }
-
-        val currentTime = System.currentTimeMillis()
-        val isConnectionChanged = previousConnectionState != connected
-        val isCooldownOver = currentTime - lastShownTime > 30000
-
-        val shouldShowBanner = (!hasShownFirstBanner || (isConnectionChanged && isCooldownOver))
-                && !isDismissedByUser
-
-        if (shouldShowBanner) {
-            // Cancel existing timer
-            hideJob?.cancel()
-
-            showBanner = true
-            previousConnectionState = connected
-            lastShownTime = currentTime
-            hasShownFirstBanner = true
-
-            // Start new timer
-            hideJob = scope.launch {
-                delay(durationMillis)
-                showBanner = false
-                hideJob = null
-            }
-        }
-    }
-
-    // Trigger on connection changes
     LaunchedEffect(isConnected) {
-        updateBannerVisibility(isConnected)
-    }
+        job?.cancel()
 
-    // Clean up on dispose
-    DisposableEffect(Unit) {
-        onDispose {
-            hideJob?.cancel()
+        if (isConnected == null) {
+            showBanner = false
+            return@LaunchedEffect
+        }
+
+        showBanner = true
+
+        job = scope.launch {
+            delay(durationMillis)
+            showBanner = false
         }
     }
 
@@ -86,11 +52,7 @@ fun OfflineBanner(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (isConnected) {
-                    "You're online"
-                } else {
-                    "You're offline — showing cached recipes"
-                },
+                text = if (isConnected) "You're online" else "You're offline - showing cached recipes",
                 color = Color.White
             )
         }
