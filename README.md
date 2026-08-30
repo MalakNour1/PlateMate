@@ -53,7 +53,6 @@ Kotlin · Jetpack Compose · Room + Paging 3 · Retrofit + Gson · Coroutines/Fl
 ## Known Limitations
 
 - Pull-to-refresh bypasses the 15-minute cache window but can't yet distinguish itself from a cold-start refresh at the Paging 3 level
-- Category field is not returned by the search endpoint and falls back to Spoonacular's dish type when available
 
 ## Team
 
