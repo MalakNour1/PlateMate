@@ -22,7 +22,7 @@ A recipe app that works fully offline after the first load — browse, search, s
 
 | Meal Planner | Shopping List | Offline Mode |
 |---|---|---|
-| <img src="https://github.com/user-attachments/assets/abce28a9-4bef-4320-8025-37aec3bc38ab" width="220"/> | <img src="https://github.com/user-attachments/assets/1d56c5ae-ff11-4642-9210-7248671ce68d" width="220"/> | <img src="https://github.com/user-attachments/assets/e121b147-52ab-44fd-89f5-d20372b3af47" width="220"/> |
+| <img src="https://github.com/user-attachments/assets/abce28a9-4bef-4320-8025-37aec3bc38ab" width="220"/> | <img src="https://github.com/user-attachments/assets/1d56c5ae-ff11-4642-9210-7248671ce68d" width="220"/> | <img src="https://github.com/user-attachments/assets/c1026da1-70ef-4875-a5ec-fdd99ee36436" width="220"/> |
 
 ## Architecture
 
@@ -57,4 +57,4 @@ Kotlin · Jetpack Compose · Room + Paging 3 · Retrofit + Gson · Coroutines/Fl
 
 ## Team
 
-Malak Nour, Ganna Abdelrahman — both contributed across data, UI, and features throughout the project.
+Malak Nour, Ganna Abdelrahman
